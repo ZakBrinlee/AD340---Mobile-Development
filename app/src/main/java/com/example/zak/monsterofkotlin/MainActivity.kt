@@ -49,8 +49,10 @@ class MainActivity : AppCompatActivity() {
 
     fun onClick(){
 
+        //this will check the visibility of the aboutText
         val aboutTextIsVisible = aboutText.getVisibility()
 
+        //This will show or hide the aboutText depending on it's current visibility
         if(aboutTextIsVisible==View.INVISIBLE)
         {
             aboutText.setVisibility(View.VISIBLE)

@@ -12,13 +12,14 @@ import kotlinx.android.synthetic.main.content_main.*
 import android.support.design.widget.FloatingActionButton
 import android.view.View
 import android.R.id.button1
-
-
+import android.content.Intent
+import android.widget.EditText
 
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var aboutText: TextView;
+    lateinit var editText: EditText;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,8 +27,14 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         aboutText = findViewById(R.id.aboutText)
+        editText = findViewById(R.id.editText)
+
         val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener { onClick()
+        fab.setOnClickListener {
+            val name = editText.text.toString()
+            val intent = Intent(this@MainActivity, IntentActivity::class.java)
+            intent.putExtra("Name", name)
+            startActivity(intent)
         }
     }
 
@@ -47,20 +54,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun onClick(){
-
-        //this will check the visibility of the aboutText
-        val aboutTextIsVisible = aboutText.getVisibility()
-
-        //This will show or hide the aboutText depending on it's current visibility
-        if(aboutTextIsVisible==View.INVISIBLE)
-        {
-            aboutText.setVisibility(View.VISIBLE)
-        }
-        else if(aboutTextIsVisible==View.VISIBLE)
-        {
-            aboutText.setVisibility(View.INVISIBLE);
-        }
-
-    }
 }

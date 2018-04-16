@@ -11,7 +11,7 @@ class IntentActivity : AppCompatActivity() {
 
     private val TAG = "IntentActivity"
 
-    lateinit var intentView: TextView;
+    lateinit var intentView: TextView
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,7 +20,7 @@ class IntentActivity : AppCompatActivity() {
         setContentView(R.layout.activity_intent)
 
         //get data from intent
-        var intent = intent
+        val intent = intent
         val name = intent.getStringExtra("Name")
 
         //starting debug logging using the logcat
@@ -29,7 +29,8 @@ class IntentActivity : AppCompatActivity() {
         //intentView
         intentView = findViewById(R.id.intentView)
         //set text
-        intentView.text = "Welcome "+name+""
+        val message = "Welcome "+name+""
+        intentView.setText(message)
         Log.d(TAG, "intentView loaded with intent name. End of onCreate()")
     }
 

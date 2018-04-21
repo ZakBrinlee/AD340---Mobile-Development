@@ -13,7 +13,9 @@ import android.support.design.widget.FloatingActionButton
 import android.view.View
 import android.R.id.button1
 import android.content.Intent
+import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,12 +31,30 @@ class MainActivity : AppCompatActivity() {
         aboutText = findViewById(R.id.aboutText)
         editText = findViewById(R.id.editText)
 
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener {
+        //set onclick and intent for HW2 button
+        intentButton.setOnClickListener {
             val name = editText.text.toString()
             val intent = Intent(this@MainActivity, IntentActivity::class.java)
             intent.putExtra("Name", name)
             startActivity(intent)
+        }
+
+        //set onclick and toast for first Toast Button
+        movieButton.setOnClickListener {
+            val intent = Intent(this@MainActivity, MovieRecyclerActivity::class.java)
+            startActivity(intent)
+        }
+        //set onclick and toast for first Toast Button
+        toast1.setOnClickListener {
+            Toast.makeText(this@MainActivity, "This is Toast Button 1", Toast.LENGTH_LONG).show()
+        }
+        //set onclick and toast for first Toast Button
+        toast2.setOnClickListener {
+            Toast.makeText(this@MainActivity, "This is Toast Button 2", Toast.LENGTH_LONG).show()
+        }
+        //set onclick and toast for first Toast Button
+        toast3.setOnClickListener {
+            Toast.makeText(this@MainActivity, "This is Toast Button 3", Toast.LENGTH_LONG).show()
         }
     }
 

@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.zak.monsterofkotlin.MainActivity">
+    tools:context="com.example.zak.monsterofkotlin.MovieRecyclerActivity">
 
     <item
         android:id="@+id/action_search"
@@ -17,11 +17,10 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_theme"
+        android:id="@+id/action_like"
         android:orderInCategory="100"
-        android:title="Change app theme"
+        android:title="Like this app on social media!"
         app:showAsAction="never" />
-
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

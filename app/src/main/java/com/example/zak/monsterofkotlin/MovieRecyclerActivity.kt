@@ -7,10 +7,9 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 
 
 class MovieRecyclerActivity : AppCompatActivity() {
@@ -22,6 +21,10 @@ class MovieRecyclerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_movie_recycler)
+        setSupportActionBar(findViewById(R.id.my_toolbar))
+
+        // Get a support ActionBar corresponding to this toolbar and enable the Up button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         viewManager = LinearLayoutManager(this)
         viewAdapter = RecyclerAdapter(this)
@@ -41,6 +44,36 @@ class MovieRecyclerActivity : AppCompatActivity() {
 
     }//end of onCreate
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.menu_movie_list, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                Toast.makeText(this@MovieRecyclerActivity, "Settings Menu Option Selected", Toast.LENGTH_LONG).show()
+                true
+            }
+            R.id.action_like -> {
+                Toast.makeText(this@MovieRecyclerActivity, "You have selected to Like this app", Toast.LENGTH_LONG).show()
+                true
+            }
+            R.id.action_about -> {
+                val intent = Intent(this@MovieRecyclerActivity, AboutActivity::class.java)
+                startActivity(intent)
+                true
+            }
+            R.id.action_search -> {
+                true
+            }
+            else -> {super.onOptionsItemSelected(item)}
+        }
+    }
 }//end of MovieRecyclerActivity
 
 class RecyclerAdapter(movieRecyclerActivity: MovieRecyclerActivity) : RecyclerView.Adapter<RecyclerAdapter.ViewHolder>(){

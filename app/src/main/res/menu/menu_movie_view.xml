@@ -1,7 +1,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.example.zak.monsterofkotlin.MainActivity">
+    tools:context="com.example.zak.monsterofkotlin.MovieViewActivity">
 
     <item
         android:id="@+id/action_search"
@@ -17,9 +17,9 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_theme"
+        android:id="@+id/action_share"
         android:orderInCategory="100"
-        android:title="Change app theme"
+        android:title="Share this movie"
         app:showAsAction="never" />
 
     <item

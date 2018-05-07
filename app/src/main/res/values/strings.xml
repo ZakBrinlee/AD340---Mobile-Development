@@ -9,4 +9,5 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="title_activity_search_results">SearchResults</string>
+    <string name="default_name">Zak Brinlee</string>
 </resources>

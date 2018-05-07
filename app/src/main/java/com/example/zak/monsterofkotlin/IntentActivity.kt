@@ -1,6 +1,8 @@
 package com.example.zak.monsterofkotlin
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +18,8 @@ class IntentActivity : AppCompatActivity() {
     private val TAG = "IntentActivity"
 
     lateinit var intentView: TextView
+    lateinit var sharedView: TextView
+    lateinit var sharedPref: SharedPreferences;
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +44,13 @@ class IntentActivity : AppCompatActivity() {
         val message = "Welcome "+name+""
         intentView.setText(message)
         Log.d(TAG, "intentView loaded with intent name. End of onCreate()")
+
+        //sharedView
+        sharedView = findViewById(R.id.sharedView)
+        //set text from sharedPref
+        sharedPref = getSharedPreferences("KotlinFile", Context.MODE_PRIVATE )
+        val sharedName = sharedPref.getString("default_name", "No value saved")
+        sharedView.text = "This is the content from SharedPreferences from first activity: $sharedName"
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

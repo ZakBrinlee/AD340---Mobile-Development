@@ -10,9 +10,12 @@ import kotlinx.android.synthetic.main.content_main.*
 import android.support.design.widget.FloatingActionButton
 import android.view.View
 import android.R.id.button1
+import android.R.id.edit
+import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.support.v4.widget.DrawerLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.content.ContextCompat.startActivity
@@ -22,16 +25,26 @@ import android.support.v7.app.ActionBarDrawerToggle
 import android.widget.*
 import com.example.zak.monsterofkotlin.R.id.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.view.*
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener{
 
     lateinit var editText: EditText;
+    lateinit var sharedPref: SharedPreferences;
+    lateinit var editor: SharedPreferences.Editor
 
+    @SuppressLint("CommitPrefEdits")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        //setting sharedPreferences and adding the default name
+        this.sharedPref = getSharedPreferences("KotlinFile", Context.MODE_PRIVATE )
+        this.editor = sharedPref.edit()
+        this.editor.putString("default_name", "Zak Brinlee")
+        this.editor.apply()
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -40,15 +53,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
+        //setting default name to edit text view
         editText = findViewById(R.id.editText)
+        val defaultName = sharedPref.getString("default_name","")
 
+        editText.setText(defaultName)
         //set onclick and intent for HW2 button
+
+        //set up for error message if entry is null or numeric
+
         intentButton.setOnClickListener {
             val name = editText.text.toString()
-            val intent = Intent(this@MainActivity, IntentActivity::class.java)
-            intent.putExtra("Name", name)
-            startActivity(intent)
-        }
+            if(name != "" || name.equals(Int)){
+                if (name != defaultName){
+                    editor.putString("default_name", name)
+                    editor.apply()
+                }
+                val intent = Intent(this@MainActivity, IntentActivity::class.java)
+                intent.putExtra("Name", name)
+                startActivity(intent)
+            }//end of if string is not empty
+            else{
+                errorMessage.setText("Please enter a valid name")
+            }
+
+        }//end of intent button click listener
 
         //set onclick and toast for first Toast Button
         movieButton.setOnClickListener {
@@ -131,3 +160,4 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 }
+

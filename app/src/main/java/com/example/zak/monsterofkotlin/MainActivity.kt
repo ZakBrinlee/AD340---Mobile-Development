@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
 
         //setting default name to edit text view
-        editText = findViewById(R.id.editText)
+        editText = this.findViewById(R.id.editText)
         val defaultName = sharedPref.getString("default_name","")
 
         editText.setText(defaultName)
@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         intentButton.setOnClickListener {
             val name = editText.text.toString()
-            if(name != "" || name.equals(Int)){
+            if(inputValidate(name)){
                 if (name != defaultName){
                     editor.putString("default_name", name)
                     editor.apply()
@@ -99,6 +99,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
+    fun inputValidate(string: String): Boolean {
+        if(string.length == 0){
+            return false
+        }
+        if(string.matches("-?\\d+(\\.\\d+)?".toRegex())){
+            return false
+        }
+        return true
+    }
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)

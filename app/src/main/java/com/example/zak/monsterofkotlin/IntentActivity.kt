@@ -19,7 +19,7 @@ class IntentActivity : AppCompatActivity() {
 
     lateinit var intentView: TextView
     lateinit var sharedView: TextView
-    lateinit var sharedPref: SharedPreferences;
+    lateinit var sharedPrefsHelper: SharedPrefsHelper
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,9 +48,9 @@ class IntentActivity : AppCompatActivity() {
         //sharedView
         sharedView = findViewById(R.id.sharedView)
         //set text from sharedPref
-        sharedPref = getSharedPreferences("KotlinFile", Context.MODE_PRIVATE )
-        val sharedName = sharedPref.getString("default_name", "No value saved")
-        sharedView.text = "This is the content from SharedPreferences from first activity: $sharedName"
+        sharedPrefsHelper = SharedPrefsHelper(getApplicationContext());
+        var savedName = sharedPrefsHelper.getSharedPrefs();
+        sharedView.text = "This is the content from SharedPreferences from first activity: $savedName"
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

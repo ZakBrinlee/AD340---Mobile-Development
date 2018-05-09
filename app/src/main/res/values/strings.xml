@@ -10,4 +10,6 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="title_activity_search_results">SearchResults</string>
     <string name="default_name">Zak Brinlee</string>
+    <string name="default_text">Default text</string>
+    <string name="default_backup">Default something</string>
 </resources>

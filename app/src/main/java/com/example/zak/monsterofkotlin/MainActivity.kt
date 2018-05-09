@@ -31,8 +31,8 @@ import kotlinx.android.synthetic.main.content_main.view.*
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener{
 
     lateinit var editText: EditText;
-    lateinit var sharedPref: SharedPreferences;
-    lateinit var editor: SharedPreferences.Editor
+    lateinit var sharedPrefsHelper: SharedPrefsHelper
+    lateinit var context: Context
 
     @SuppressLint("CommitPrefEdits")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,11 +40,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        context = this.applicationContext
         //setting sharedPreferences and adding the default name
-        this.sharedPref = getSharedPreferences("KotlinFile", Context.MODE_PRIVATE )
-        this.editor = sharedPref.edit()
-        this.editor.putString("default_name", "Zak Brinlee")
-        this.editor.apply()
+        val sharedPreferences = this.getSharedPreferences(this.getResources().getString(R.string.default_name), Context.MODE_PRIVATE)
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -53,11 +51,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
+        //getting helper
+        sharedPrefsHelper = SharedPrefsHelper(getApplicationContext());
+        var savedName = sharedPrefsHelper.getSharedPrefs();
         //setting default name to edit text view
         editText = this.findViewById(R.id.editText)
-        val defaultName = sharedPref.getString("default_name","")
-
-        editText.setText(defaultName)
+        editText.setText(savedName)
         //set onclick and intent for HW2 button
 
         //set up for error message if entry is null or numeric
@@ -65,10 +64,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         intentButton.setOnClickListener {
             val name = editText.text.toString()
             if(inputValidate(name)){
-                if (name != defaultName){
-                    editor.putString("default_name", name)
-                    editor.apply()
-                }
+                sharedPrefsHelper.putSharedPrefsHelper(name);
+//                this.editor = sharedPref.edit()
+//                editor.putString("default_name", name)
+//                editor.apply()
                 val intent = Intent(this@MainActivity, IntentActivity::class.java)
                 intent.putExtra("Name", name)
                 startActivity(intent)
@@ -108,6 +107,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         return true
     }
+
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)

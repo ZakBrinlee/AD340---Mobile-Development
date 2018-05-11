@@ -20,7 +20,7 @@ class IntentActivity : AppCompatActivity() {
     lateinit var intentView: TextView
     lateinit var sharedView: TextView
     lateinit var sharedPrefsHelper: SharedPrefsHelper
-
+    lateinit var mSharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate() Restoring previous state")
@@ -47,8 +47,12 @@ class IntentActivity : AppCompatActivity() {
 
         //sharedView
         sharedView = findViewById(R.id.sharedView)
-        //set text from sharedPref
-        sharedPrefsHelper = SharedPrefsHelper(getApplicationContext());
+
+
+        //setting sharedPreferences and adding the default name
+        mSharedPreferences = this.getSharedPreferences("default", Context.MODE_PRIVATE);
+        sharedPrefsHelper = SharedPrefsHelper(mSharedPreferences);
+
         var savedName = sharedPrefsHelper.getSharedPrefs();
         sharedView.text = "This is the content from SharedPreferences from first activity: $savedName"
     }

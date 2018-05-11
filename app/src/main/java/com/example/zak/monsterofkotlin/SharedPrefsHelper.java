@@ -5,22 +5,22 @@ import android.content.SharedPreferences;
 
 public class SharedPrefsHelper {
 
-    private SharedPreferences sharedPreferences;
+    private final SharedPreferences mSharedPreferences;
     private Context context;
+    static final String KEY_ENTRY = "text_entry";
 
-    public SharedPrefsHelper(Context context){
-        this.context = context;
-        sharedPreferences = context.getSharedPreferences(context.getResources().getString(R.string.default_name), Context.MODE_PRIVATE);
-    }
+    public SharedPrefsHelper(SharedPreferences sharedPreferences){
+        mSharedPreferences = sharedPreferences;    }
 
-    public void putSharedPrefsHelper(String str){
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(context.getResources().getString(R.string.default_text), str);
-        editor.commit();
+    public boolean putSharedPrefsHelper(String str){
+        SharedPreferences.Editor editor = mSharedPreferences.edit();
+        editor.putString(KEY_ENTRY, str);
+
+        return editor.commit();
     }
 
     public String getSharedPrefs(){
-        String str = sharedPreferences.getString(context.getResources().getString(R.string.default_text),context.getResources().getString(R.string.default_backup));
+        String str = mSharedPreferences.getString(KEY_ENTRY, "");
         return str;
     }
 }

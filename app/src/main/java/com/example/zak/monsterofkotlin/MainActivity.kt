@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     lateinit var editText: EditText;
     lateinit var sharedPrefsHelper: SharedPrefsHelper
+    lateinit var mSharedPreferences: SharedPreferences
     lateinit var context: Context
 
     @SuppressLint("CommitPrefEdits")
@@ -41,8 +42,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setSupportActionBar(toolbar)
 
         context = this.applicationContext
+
         //setting sharedPreferences and adding the default name
-        val sharedPreferences = this.getSharedPreferences(this.getResources().getString(R.string.default_name), Context.MODE_PRIVATE)
+        mSharedPreferences = this.getSharedPreferences("default", Context.MODE_PRIVATE);
+        sharedPrefsHelper = SharedPrefsHelper(mSharedPreferences);
 
         val toggle = ActionBarDrawerToggle(
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
@@ -51,8 +54,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         nav_view.setNavigationItemSelectedListener(this)
 
-        //getting helper
-        sharedPrefsHelper = SharedPrefsHelper(getApplicationContext());
         var savedName = sharedPrefsHelper.getSharedPrefs();
         //setting default name to edit text view
         editText = this.findViewById(R.id.editText)

@@ -85,8 +85,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(intent)
         }
         //set onclick and toast for first Toast Button
-        toast1.setOnClickListener {
-            Toast.makeText(this@MainActivity, "This is Toast Button 1", Toast.LENGTH_LONG).show()
+        liveCamsButton.setOnClickListener {
+            val intent = Intent(this@MainActivity, LiveCamsActivity::class.java)
+            startActivity(intent)
         }
         //set onclick and toast for first Toast Button
         toast2.setOnClickListener {

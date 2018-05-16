@@ -1,23 +1,16 @@
 package com.example.zak.monsterofkotlin
 
+import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import com.example.zak.monsterofkotlin.AboutActivity
-import com.example.zak.monsterofkotlin.R
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.cams_layout.view.*
 import org.json.JSONArray
@@ -28,6 +21,11 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
+import android.net.NetworkInfo
+import android.net.ConnectivityManager
+import android.widget.EditText
+import kotlinx.android.synthetic.main.content_main.*
+
 
 class LiveCamsActivity : AppCompatActivity() {
 
@@ -35,13 +33,42 @@ class LiveCamsActivity : AppCompatActivity() {
     private lateinit var viewManager: RecyclerView.LayoutManager
     private lateinit var viewAdapter: RecyclerView.Adapter<*>
 
+    private var trafficCams: MutableList<TrafficCamera> = mutableListOf<TrafficCamera>()
+
+    lateinit var errorMessage: TextView;
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_live_cams)
         setSupportActionBar(findViewById(R.id.my_toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        GetJSON(this).execute("https://web6.seattle.gov/Travelers/api/Map/Data?zoomId=13&type=2")
+        errorMessage = findViewById(R.id.errorMessage)
+
+        viewManager = LinearLayoutManager(this@LiveCamsActivity)
+        viewAdapter = CameraAdapter(trafficCams, this)
+
+        recyclerView = findViewById<RecyclerView>(R.id.cam_recycler_view).apply {
+            // use this setting to improve performance if you know that changes
+            // in content do not change the layout size of the RecyclerView
+            setHasFixedSize(true)
+
+            // use a linear layout manager
+            layoutManager = viewManager
+
+            // specify an viewAdapter (see also next example)
+            adapter = viewAdapter
+
+        }//end of recyclerView
+
+        if(isNetworkAvaliable(this@LiveCamsActivity)){
+            GetJSON(this).execute("https://web6.seattle.gov/Travelers/api/Map/Data?zoomId=13&type=2")
+        } else {
+            errorMessage.setText("Network Connection Unavailable")
+            Toast.makeText(this@LiveCamsActivity, "No network is available", Toast.LENGTH_SHORT).show()
+        }
+
     }
 
     /*
@@ -49,44 +76,25 @@ class LiveCamsActivity : AppCompatActivity() {
        https://www.sitepoint.com/transfer-data-between-activities-with-android-parcelable/
     */
 
-    class cameraInfo(pointCords: String = "", id: String = "", imgUrl: String = "", description: String = "", type: String = "" ) : Parcelable {
-        var points = pointCords
-        var id = id
-        var imgUrl = imgUrl
-        var description = description
-        var type = type
+    // Moving to a simpler TrafficCamera object class.
 
-        constructor(parcel: Parcel) : this(
-                parcel.readString(),
-                parcel.readString(),
-                parcel.readString(),
-                parcel.readString(),
-                parcel.readString())
-
-
-        //override fun toString() : String{     }
-        override fun writeToParcel(parcel: Parcel, flags: Int) {
-            parcel.writeString(points)
-            parcel.writeString(id)
-            parcel.writeString(imgUrl)
-            parcel.writeString(description)
-            parcel.writeString(type)
-        }//end of writeToParcel
-
-        override fun describeContents(): Int {
-            return 0
-        }//end of describeContents
-
-        companion object CREATOR : Parcelable.Creator<cameraInfo> {
-            override fun createFromParcel(parcel: Parcel): cameraInfo {
-                return cameraInfo(parcel)
+    //check connectivity function
+    fun isNetworkAvaliable(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = cm.activeNetworkInfo
+        if (activeNetwork != null) { // connected to the internet
+            if (activeNetwork.type == ConnectivityManager.TYPE_WIFI) {
+                // connected to wifi
+                Toast.makeText(context, activeNetwork.typeName, Toast.LENGTH_SHORT).show()
+            } else if (activeNetwork.type == ConnectivityManager.TYPE_MOBILE) {
+                // connected to the mobile provider's data plan
+                Toast.makeText(context, activeNetwork.typeName, Toast.LENGTH_SHORT).show()
             }
-
-            override fun newArray(size: Int): Array<cameraInfo?> {
-                return arrayOfNulls(size)
-            }//end of newArray
-        }//end of CREATOR
-
+            return true
+        }
+        else {
+            return false
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -173,14 +181,14 @@ class LiveCamsActivity : AppCompatActivity() {
                     e.printStackTrace()
                 }
             }//end of finally
+
             return "" //return empty string with no connection or data
+
         }//end of doInBackground
 
         override fun onPostExecute(result: String) {
             super.onPostExecute(result)
 
-            //list of all cameras from class
-            var camList: MutableList<cameraInfo> = mutableListOf<cameraInfo>()
             //JSON object from url
             var jObj: JSONObject = JSONObject(result)
             // gets the array of features which is full list
@@ -193,44 +201,23 @@ class LiveCamsActivity : AppCompatActivity() {
 
                 for(j in 0..cameraNumber) {
 
-                    var camera: cameraInfo = cameraInfo() //a camera
-                    camera.points = JSONObject(coords[i].toString()).getString("PointCoordinate")
-                    camera.id = JSONArray(tempJason.getString("Cameras")).getJSONObject(j).getString("Id")
-                    camera.description = JSONArray(tempJason.getString("Cameras")).getJSONObject(j).getString("Description")
-                    camera.imgUrl = JSONArray(tempJason.getString("Cameras")).getJSONObject(j).getString("ImageUrl")
+                    val camera:TrafficCamera = TrafficCamera()//a camera
+                    camera.name = JSONArray(tempJason.getString("Cameras")).getJSONObject(j).getString("Description")
+                    camera.imageURL = JSONArray(tempJason.getString("Cameras")).getJSONObject(j).getString("ImageUrl")
                     camera.type = JSONArray(tempJason.getString("Cameras")).getJSONObject(j).getString("Type")
 
                     //add each camera to list of cameras
-                    camList.add(camera)
+                    trafficCams.add(camera)
 
                 }
             }
 
-
-           var camArray = camList.toTypedArray()
-
-            viewManager = LinearLayoutManager(mContext)
-            viewAdapter = CameraAdapter(camArray, mContext)
-
-            recyclerView = findViewById<RecyclerView>(R.id.cam_recycler_view).apply {
-                // use this setting to improve performance if you know that changes
-                // in content do not change the layout size of the RecyclerView
-                setHasFixedSize(true)
-
-                // use a linear layout manager
-                layoutManager = viewManager
-
-                // specify an viewAdapter (see also next example)
-                adapter = viewAdapter
-
-            }//end of recyclerView
             viewAdapter.notifyDataSetChanged();
         }
     }
 
-    class CameraAdapter(private val camData: Array<cameraInfo>, private val mContext : LiveCamsActivity) :
+    class CameraAdapter(private val camArray: MutableList<TrafficCamera>, private val mContext: LiveCamsActivity) :
             RecyclerView.Adapter<CameraAdapter.ViewHolder>() {
-        var creationCounter = 0;
 
         // Provide a reference to the views for each data item
         // Complex data items may need more than one view per item, and
@@ -255,21 +242,16 @@ class LiveCamsActivity : AppCompatActivity() {
 
         // Replace the contents of a view (invoked by the layout manager)
         override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-            // - get element from your dataset at this position
-            // - replace the contents of the view with that element
-            //holder.imgView.text = myDataset[position].id
-            //myDataset[position].imgUrl
+
             var completeURL: String = ""
-            //println(myDataset[position].type)
-            if(camData[position].type.equals("sdot")){
-                //  println("http://www.seattle.gov/trafficcams/images/"+myDataset[position].imgUrl)
-                completeURL = "http://www.seattle.gov/trafficcams/images/"+camData[position].imgUrl
-            }else if(camData[position].type.equals("wsdot")){
-                //println("http://images.wsdot.wa.gov/nw/"+myDataset[position].imgUrl)
-                completeURL = "http://images.wsdot.wa.gov/nw/"+camData[position].imgUrl
+
+            if(camArray[position].type.equals("sdot")){
+                completeURL = "http://www.seattle.gov/trafficcams/images/" + camArray[position].imageURL
+            }else if(camArray[position].type.equals("wsdot")){
+                completeURL = "http://images.wsdot.wa.gov/nw/" + camArray[position].imageURL
             }
 
-            viewHolder.camNameView.text = camData[position].description
+            viewHolder.camNameView.text = camArray[position].name
 
             Picasso.get()
                     .load(completeURL)
@@ -280,7 +262,7 @@ class LiveCamsActivity : AppCompatActivity() {
         }
 
         // Gets the size by the whole dataset number
-        override fun getItemCount() = camData.size-1
+        override fun getItemCount() = camArray.size-1
     }
 
 }

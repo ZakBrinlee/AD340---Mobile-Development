@@ -11,6 +11,7 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
@@ -44,7 +45,6 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMa
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
         private const val REQUEST_CHECK_SETTINGS = 2
-        private const val PLACE_PICKER_REQUEST = 3
     }
 
     private lateinit var map: GoogleMap
@@ -65,12 +65,6 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMa
 
         // Get a support ActionBar corresponding to this toolbar and enable the Up button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        //fab for location search
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener {
-            loadPlacePicker()
-        }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -95,9 +89,8 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMa
 
     //location updates method
     private fun startLocationUpdates() {
-        //1
         if (ActivityCompat.checkSelfPermission(this,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
                     LOCATION_PERMISSION_REQUEST_CODE)
@@ -162,20 +155,6 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMa
         }
     }//end of createLocationRequest
 
-    //This method creates a new builder for an intent to start the Place Picker UI
-    // and then starts the PlacePicker intent.
-    private fun loadPlacePicker() {
-        val builder = PlacePicker.IntentBuilder()
-
-        try {
-            startActivityForResult(builder.build(this@LocationActivity), PLACE_PICKER_REQUEST)
-        } catch (e: GooglePlayServicesRepairableException) {
-            e.printStackTrace()
-        } catch (e: GooglePlayServicesNotAvailableException) {
-            e.printStackTrace()
-        }
-    }
-
     //Override AppCompatActivity’s onActivityResult() method and start the update
     // request if it has a RESULT_OK result for a REQUEST_CHECK_SETTINGS request.
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
@@ -186,18 +165,6 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMa
                 startLocationUpdates()
             }
         }//end of if
-
-        //Here you retrieve details about the selected place if it has a RESULT_OK result for a
-        // PLACE_PICKER_REQUEST request, and then place a marker on that position on the map
-        if (requestCode == PLACE_PICKER_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                val place = PlacePicker.getPlace(this, data)
-                var addressText = place.name.toString()
-                addressText += "\n" + place.address.toString()
-
-                placeMarkerOnMap(place.latLng)
-            }
-        }
     }//end of onActivityResult
 
     //Override onPause() to stop location update request
@@ -212,7 +179,8 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMa
         if (!locationUpdateState) {
             startLocationUpdates()
         }
-    }
+    }//end of onResume
+
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -224,6 +192,7 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMa
      */
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
+
         map.uiSettings.isZoomControlsEnabled = true
         map.setOnMarkerClickListener(this)
 
@@ -243,14 +212,16 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMa
 
     private fun setUpMap() {
         if (ActivityCompat.checkSelfPermission(this,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
             return
         }
+
         map.isMyLocationEnabled = true
 
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
+            // Got last known location. In some rare situations this can be null.
             if (location != null) {
                 lastLocation = location
                 val currentLatLng = LatLng(location.latitude, location.longitude)
@@ -261,7 +232,7 @@ class LocationActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMa
     }//end of setUpMap
 
     //geocoding method to get address of current location
-    private fun getAddress(latLng: LatLng): String {
+    fun getAddress(latLng: LatLng): String {
         // 1
         val geocoder = Geocoder(this)
         val addresses: List<Address>?

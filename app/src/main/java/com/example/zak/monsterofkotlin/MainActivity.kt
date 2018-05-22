@@ -90,9 +90,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(intent)
         }
         //set onclick and toast for first Toast Button
-        toast2.setOnClickListener {
-            Toast.makeText(this@MainActivity, "This is Toast Button 2", Toast.LENGTH_LONG).show()
-        }
+        locationButton.setOnClickListener {
+            val intent = Intent(this@MainActivity, LocationActivity::class.java)
+            startActivity(intent)        }
         //set onclick and toast for first Toast Button
         toast3.setOnClickListener {
             Toast.makeText(this@MainActivity, "This is Toast Button 3", Toast.LENGTH_LONG).show()
